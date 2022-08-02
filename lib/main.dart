@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:id_scanner/screens/add_card.dart';
@@ -12,6 +14,7 @@ import 'package:id_scanner/screens/welcome.dart';
 import 'app_bindings.dart';
 
 void main() async {
+  HttpOverrides.global = MyHttpOverrides();
   WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
 }
@@ -36,6 +39,14 @@ class MyApp extends StatelessWidget {
         GetPage(name: IDReport.id, page: () => const IDReport()),
       ],
     );
+  }
+}
+
+class MyHttpOverrides extends HttpOverrides {
+  @override
+  HttpClient createHttpClient(SecurityContext? context) {
+    return super.createHttpClient(context)
+      ..badCertificateCallback = (X509Certificate cert, String host, int port) => true;
   }
 }
 

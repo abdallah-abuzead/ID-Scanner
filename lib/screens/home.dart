@@ -4,12 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:id_scanner/app_data.dart';
 import 'package:id_scanner/controllers/card_controller.dart';
-import 'package:id_scanner/screens/add_card.dart';
 import 'package:id_scanner/screens/dynamic_form.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 
 import '../components/my_text.dart';
 import '../widgets/cards_list.dart';
+import 'add_card.dart';
 
 class Home extends StatefulWidget {
   static const String id = '/home';
@@ -20,6 +20,7 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   List<File> imageFiles = [];
+
   @override
   Widget build(BuildContext context) {
     return GetBuilder<CardController>(
@@ -74,3 +75,5 @@ class _HomeState extends State<Home> {
     );
   }
 }
+
+//N6F26Q

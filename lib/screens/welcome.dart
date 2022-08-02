@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
+import 'package:id_scanner/controllers/location_controller.dart';
 import 'package:id_scanner/screens/login.dart';
 
 import '../app_data.dart';
@@ -7,9 +9,22 @@ import '../components/custom_widgets.dart';
 import '../components/my_text.dart';
 import '../components/rounded_button.dart';
 
-class Welcome extends StatelessWidget {
+class Welcome extends StatefulWidget {
   const Welcome({Key? key}) : super(key: key);
   static const String id = '/welcome';
+
+  @override
+  State<Welcome> createState() => _WelcomeState();
+}
+
+class _WelcomeState extends State<Welcome> {
+  LocationController location = LocationController();
+
+  @override
+  void initState() {
+    location.getLocationPermission();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +62,16 @@ class Welcome extends StatelessWidget {
                           Icon(Icons.arrow_forward_outlined, color: Colors.white, size: 22),
                         ],
                       ),
-                      onPressed: () => Get.toNamed(Login.id),
+                      onPressed: () async {
+                        if (LocationController.permission == LocationPermission.always) {
+                          Get.toNamed(Login.id);
+                        } else {
+                          await location.getLocationPermission();
+                          if (LocationController.permission == LocationPermission.always) {
+                            Get.toNamed(Login.id);
+                          }
+                        }
+                      },
                     ),
                   ],
                 ),

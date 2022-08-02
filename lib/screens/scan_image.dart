@@ -22,7 +22,8 @@ class ScanImage extends StatefulWidget {
 class _ScanImageState extends State<ScanImage> {
   CardModel card = Get.arguments;
   // CardModel card = CardModel();
-  Map cardData = {'nationalId': '', 'name': '', 'address': ''};
+  Map cardData = {};
+  bool error = false;
   @override
   initState() {
     super.initState();
@@ -51,13 +52,17 @@ class _ScanImageState extends State<ScanImage> {
               child: ListView(
                 padding: const EdgeInsets.all(10),
                 children: [
-                  FittedBox(
-                    child: SizedBox(
-                      height: 145,
-                      width: 250,
-                      child: Image.file(File(card.frontImagePath.toString())),
-                      // child: Image.asset('images/empty_id.jpg'),
+                  Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 8),
+                    height: 150,
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                        image: FileImage(File(card.frontImagePath.toString())),
+                        fit: BoxFit.cover,
+                      ),
                     ),
+                    // child: Image.file(File(card.frontImagePath.toString())),
+                    // child: Image.asset('images/hatem.jpeg'),
                   ),
                   const SizedBox(height: 10),
                   Container(
@@ -66,27 +71,48 @@ class _ScanImageState extends State<ScanImage> {
                     child: ElevatedButton(
                       child: const Text('إرسال', style: TextStyle(fontSize: 16)),
                       onPressed: () async {
+                        error = false;
+                        cardData = {};
                         controller.isLoading = true;
-                        // scan(card);
+                        // cardData = await uploadImage();
                         cardData = await uploadImage2(card);
                         controller.isLoading = false;
                       },
                     ),
                   ),
                   const SizedBox(height: 20),
-                  identityField(
-                    fName: 'الرقم القومى ',
-                    fValue: cardData['nationalId'],
-                    bgColor: Colors.black,
-                  ),
-                  identityField(fName: 'الإسم ', fValue: cardData['name']),
-                  identityField(
-                      fName: 'العنوان ', fValue: cardData['address'], bgColor: Colors.black),
-                  identityField(fName: 'الوظيفة ', fValue: ''),
-                  identityField(fName: 'النوع ', fValue: '', bgColor: Colors.black),
-                  identityField(fName: 'الديانة ', fValue: ''),
-                  identityField(fName: 'الحالة الإجتماعية ', fValue: '', bgColor: Colors.black),
-                  identityField(fName: 'تاريخ الإنتهاء ', fValue: ''),
+                  cardData.isEmpty
+                      ? error
+                          ? const Center(
+                              child: Text(
+                                'Error!. Try Again',
+                                style: TextStyle(
+                                  color: Colors.red,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            )
+                          : Container()
+                      : Column(
+                          children: [
+                            identityField(
+                              fName: 'الرقم القومى ',
+                              fValue: cardData['nationalId'],
+                              bgColor: Colors.black,
+                            ),
+                            identityField(fName: 'الإسم ', fValue: cardData['name']),
+                            identityField(
+                                fName: 'العنوان ',
+                                fValue: cardData['address'],
+                                bgColor: Colors.black),
+                            identityField(fName: 'الوظيفة ', fValue: ''),
+                            identityField(fName: 'النوع ', fValue: '', bgColor: Colors.black),
+                            identityField(fName: 'الديانة ', fValue: ''),
+                            identityField(
+                                fName: 'الحالة الإجتماعية ', fValue: '', bgColor: Colors.black),
+                            identityField(fName: 'تاريخ الإنتهاء ', fValue: ''),
+                          ],
+                        ),
                   const SizedBox(height: 50),
                 ],
               ),
@@ -133,30 +159,42 @@ class _ScanImageState extends State<ScanImage> {
   //   var responseBody = jsonDecode(response.body);
   // }
 
+  // https://41.218.156.152/reader/api
+
   Future<Map> uploadImage() async {
-    Uri url = Uri.parse('http://192.168.1.130:8000/reader/api');
+    // Uri url = Uri.parse('http://192.168.1.130:8000/reader/api'); // my local device ip
+    Uri url = Uri.parse('https://41.218.156.152/reader/api'); // published ip
+    // Uri url = Uri.parse('http://10.18.121.93/reader/api'); // machine ip
     var request = http.MultipartRequest('POST', url);
     // request.fields['title'] = 'Upload Image';
     // request.headers['Authorization'] = '';
     var picture = http.MultipartFile.fromBytes(
       'image_url',
-      (await rootBundle.load('images/test.jpeg')).buffer.asUint8List(),
+      (await rootBundle.load('images/omar.jpeg')).buffer.asUint8List(),
       filename: 'test.jpeg',
     );
     request.files.add(picture);
-    var response = await request.send();
-    var responseDataAsBytes = await response.stream.toBytes();
-    // var result = String.fromCharCodes(responseData);
-    var responseData = json.decode(utf8.decode(responseDataAsBytes));
-    print(responseData);
-    return responseData;
+
+    try {
+      var response = await request.send();
+      print(response.statusCode);
+      var responseDataAsBytes = await response.stream.toBytes();
+      var responseData = json.decode(utf8.decode(responseDataAsBytes));
+      print(responseData);
+      return responseData;
+      // var result = String.fromCharCodes(responseDataAsBytes);
+    } catch (e) {
+      print(e);
+      error = true;
+    }
+    return {};
   }
 
   Future<Map> uploadImage2(CardModel card) async {
     String frontImageName = card.frontImagePath!.split('/').last;
     String backImageName = card.backImagePath!.split('/').last;
-    // Uri url = Uri.parse('https://41.218.156.152/reader/api');
-    Uri url = Uri.parse('http://192.168.1.130:8000/reader/api');
+    Uri url = Uri.parse('https://41.218.156.152/reader/api');
+    // Uri url = Uri.parse('http://192.168.1.130:8000/reader/api');
 
     var request = http.MultipartRequest('POST', url);
     //============================================================
@@ -176,11 +214,15 @@ class _ScanImageState extends State<ScanImage> {
     request.files.add(picture1);
     // request.files.add(picture2);
     //============================================================
-    var response = await request.send();
-    var responseDataAsBytes = await response.stream.toBytes();
-    // var result = String.fromCharCodes(responseData);
-    var responseData = json.decode(utf8.decode(responseDataAsBytes));
-    print(responseData);
-    return responseData;
+    try {
+      var response = await request.send();
+      var responseDataAsBytes = await response.stream.toBytes();
+      var responseData = json.decode(utf8.decode(responseDataAsBytes));
+      print(responseData);
+      return responseData;
+    } catch (e) {
+      print(e);
+    }
+    return {};
   }
 }

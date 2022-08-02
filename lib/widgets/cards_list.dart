@@ -19,12 +19,19 @@ class CardsList extends StatelessWidget {
       children: cards
           .map((card) => InkWell(
                 onTap: () => Get.toNamed(ScanImage.id, arguments: card),
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                    image: DecorationImage(
-                      image: FileImage(File(card.frontImagePath.toString())),
-                      fit: BoxFit.cover,
+                child: Card(
+                  elevation: 5,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                  child: GridTile(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: Colors.grey.shade400, width: 2),
+                        image: DecorationImage(
+                          image: FileImage(File(card.frontImagePath.toString())),
+                          fit: BoxFit.cover,
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -33,3 +40,16 @@ class CardsList extends StatelessWidget {
     );
   }
 }
+
+// footer: Container(
+//   margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+//   padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+//   color: Colors.black.withOpacity(0.4),
+//   child: Text(
+//     '${card.name}',
+//     style: const TextStyle(color: Colors.white),
+//     maxLines: 1,
+//     overflow: TextOverflow.ellipsis,
+//     textAlign: TextAlign.center,
+//   ),
+// ),

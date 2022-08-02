@@ -25,13 +25,17 @@ var kLoginInputFieldDecoration = const InputDecoration(
 var kAddCardInputFieldDecoration = InputDecoration(
   filled: true,
   fillColor: AppData.textFieldFillColor,
-  hintText: "Name",
+  hintText: "اختر حدث",
   hintStyle: TextStyle(color: AppData.placeholderColor, fontSize: 15),
-  contentPadding: const EdgeInsets.symmetric(vertical: 20, horizontal: 10),
-  prefixIcon: const Icon(Icons.drive_file_rename_outline, color: Colors.black87, size: 20),
+  contentPadding: const EdgeInsets.only(right: 0),
+  prefixIcon: const Icon(Icons.event, color: Colors.black87, size: 20),
   border: const OutlineInputBorder(
-    borderSide: BorderSide.none,
+    // borderSide: BorderSide.none,
     borderRadius: BorderRadius.all(Radius.circular(12)),
+  ),
+  enabledBorder: OutlineInputBorder(
+    borderRadius: BorderRadius.circular(15),
+    borderSide: BorderSide(color: Colors.grey.shade400, width: 1.75),
   ),
   focusedBorder: const OutlineInputBorder(
     borderSide: BorderSide(color: Colors.blue, width: 2),
