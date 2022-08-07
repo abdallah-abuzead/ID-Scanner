@@ -9,6 +9,7 @@ import 'package:id_scanner/controllers/card_controller.dart';
 import 'package:id_scanner/models/card_model.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 
+import '../models/card_data.dart';
 import 'id_report.dart';
 
 class ScanImage extends StatefulWidget {
@@ -20,9 +21,9 @@ class ScanImage extends StatefulWidget {
 }
 
 class _ScanImageState extends State<ScanImage> {
-  CardModel card = Get.arguments;
-  // CardModel card = CardModel();
-  Map cardData = {};
+  CardData cardData = Get.arguments;
+  // CardModel card = Get.arguments;
+  // Map cardData = {};
   bool error = false;
   @override
   initState() {
@@ -52,67 +53,77 @@ class _ScanImageState extends State<ScanImage> {
               child: ListView(
                 padding: const EdgeInsets.all(10),
                 children: [
+                  // Container(
+                  //   margin: const EdgeInsets.symmetric(horizontal: 8),
+                  //   height: 150,
+                  //   decoration: BoxDecoration(
+                  //     image: DecorationImage(
+                  //       image: FileImage(File(card.frontImagePath.toString())),
+                  //       fit: BoxFit.cover,
+                  //     ),
+                  //   ),
+                  //   // child: Image.file(File(card.frontImagePath.toString())),
+                  //   // child: Image.asset('images/hatem.jpeg'),
+                  // ),
                   Container(
                     margin: const EdgeInsets.symmetric(horizontal: 8),
                     height: 150,
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                        image: FileImage(File(card.frontImagePath.toString())),
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                    // child: Image.file(File(card.frontImagePath.toString())),
-                    // child: Image.asset('images/hatem.jpeg'),
-                  ),
-                  const SizedBox(height: 10),
-                  Container(
-                    height: 50,
-                    margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
-                    child: ElevatedButton(
-                      child: const Text('إرسال', style: TextStyle(fontSize: 16)),
-                      onPressed: () async {
-                        error = false;
-                        cardData = {};
-                        controller.isLoading = true;
-                        // cardData = await uploadImage();
-                        cardData = await uploadImage2(card);
-                        controller.isLoading = false;
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  cardData.isEmpty
-                      ? error
-                          ? const Center(
-                              child: Text(
-                                'Error!. Try Again',
-                                style: TextStyle(
-                                  color: Colors.red,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            )
-                          : Container()
-                      : Column(
-                          children: [
-                            identityField(
-                              fName: 'الرقم القومى ',
-                              fValue: cardData['nationalId'],
-                              bgColor: Colors.black,
-                            ),
-                            identityField(fName: 'الإسم ', fValue: cardData['name']),
-                            identityField(
-                                fName: 'العنوان ',
-                                fValue: cardData['address'],
-                                bgColor: Colors.black),
-                            identityField(fName: 'الوظيفة ', fValue: ''),
-                            identityField(fName: 'النوع ', fValue: '', bgColor: Colors.black),
-                            identityField(fName: 'الديانة ', fValue: ''),
-                            identityField(
-                                fName: 'الحالة الإجتماعية ', fValue: '', bgColor: Colors.black),
-                            identityField(fName: 'تاريخ الإنتهاء ', fValue: ''),
-                          ],
+                    child: Row(
+                      children: [
+                        Expanded(
+                          flex: 2,
+                          child: Container(color: Colors.grey, margin: const EdgeInsets.all(2)),
                         ),
+                        Expanded(
+                          child: Column(
+                            children: [
+                              Expanded(child: Container(color: Colors.grey, margin: const EdgeInsets.all(2))),
+                              Expanded(child: Container(color: Colors.grey, margin: const EdgeInsets.all(2))),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // const SizedBox(height: 10),
+                  // Container(
+                  //   height: 50,
+                  //   margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+                  //   child: ElevatedButton(
+                  //     child: const Text('إرسال', style: TextStyle(fontSize: 16)),
+                  //     onPressed: () async {
+                  //       error = false;
+                  //       cardData = {};
+                  //       controller.isLoading = true;
+                  //       // cardData = await uploadImage();
+                  //       cardData = await uploadImage2(card);
+                  //       controller.isLoading = false;
+                  //     },
+                  //   ),
+                  // ),
+                  const SizedBox(height: 20),
+                  Column(
+                    children: [
+                      // national_id
+                      identityField(fName: 'الرقم القومى ', fValue: cardData.nationalId.toString(), bgColor: Colors.black),
+                      // expiration_date
+                      identityField(fName: 'تاريخ الإنتهاء ', fValue: cardData.expirationDate.toString()),
+                      // name
+                      identityField(fName: 'الإسم ', fValue: cardData.name.toString(), bgColor: Colors.black),
+                      // address
+                      identityField(fName: 'العنوان ', fValue: cardData.address.toString()),
+                      // job
+                      identityField(fName: 'الوظيفة ', fValue: cardData.job.toString(), bgColor: Colors.black),
+                      // gender
+                      identityField(fName: 'النوع ', fValue: cardData.gender.toString()),
+                      // religion
+                      identityField(fName: 'الديانة ', fValue: cardData.religion.toString(), bgColor: Colors.black),
+                      // marital_status
+                      identityField(fName: 'الحالة الإجتماعية ', fValue: cardData.maritalStatus.toString()),
+                      // release_date
+                      identityField(fName: 'تاريخ الإصدار', fValue: cardData.releaseDate.toString(), bgColor: Colors.black),
+                    ],
+                  ),
                   const SizedBox(height: 50),
                 ],
               ),

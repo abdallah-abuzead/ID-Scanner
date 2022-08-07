@@ -25,7 +25,7 @@ var kLoginInputFieldDecoration = const InputDecoration(
 var kAddCardInputFieldDecoration = InputDecoration(
   filled: true,
   fillColor: AppData.textFieldFillColor,
-  hintText: "اختر حدث",
+  hintText: "اختر نشاط",
   hintStyle: TextStyle(color: AppData.placeholderColor, fontSize: 15),
   contentPadding: const EdgeInsets.only(right: 0),
   prefixIcon: const Icon(Icons.event, color: Colors.black87, size: 20),

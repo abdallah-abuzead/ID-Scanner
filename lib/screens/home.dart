@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:id_scanner/app_data.dart';
 import 'package:id_scanner/controllers/card_controller.dart';
+import 'package:id_scanner/controllers/internet_connection_controller.dart';
 import 'package:id_scanner/screens/dynamic_form.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 
@@ -20,6 +21,12 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   List<File> imageFiles = [];
+
+  @override
+  void initState() {
+    InternetConnectionController().checkConnection();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -65,7 +72,7 @@ class _HomeState extends State<Home> {
               child: FloatingActionButton(
                 backgroundColor: Colors.black,
                 onPressed: () => Get.toNamed(AddCard.id),
-                child: const Icon(Icons.add, size: 35, color: Colors.red),
+                child: const Icon(Icons.add, size: 35),
               ),
             ),
           ),

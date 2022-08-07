@@ -75,8 +75,7 @@ class _AddCardState extends State<AddCard> {
                   children: [
                     Text(
                       'أدخل بيانات البطاقة ',
-                      style:
-                          TextStyle(color: AppData.secondaryFontColor, fontWeight: FontWeight.w500),
+                      style: TextStyle(color: AppData.secondaryFontColor, fontWeight: FontWeight.w500),
                     ),
                     const SizedBox(height: 20),
                     Form(
@@ -84,7 +83,7 @@ class _AddCardState extends State<AddCard> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          inputLabel('الحدث'),
+                          inputLabel('النشاط'),
                           const SizedBox(height: 5),
                           // TextFormField(
                           //   controller: controller.eventController,
@@ -100,8 +99,7 @@ class _AddCardState extends State<AddCard> {
                             iconSize: 30,
                             buttonHeight: 50,
                             buttonPadding: const EdgeInsets.symmetric(horizontal: 10),
-                            dropdownDecoration:
-                                BoxDecoration(borderRadius: BorderRadius.circular(15)),
+                            dropdownDecoration: BoxDecoration(borderRadius: BorderRadius.circular(15)),
                             items: events.map<DropdownMenuItem<Event>>((Event event) {
                               return DropdownMenuItem<Event>(
                                 value: event,
@@ -137,9 +135,7 @@ class _AddCardState extends State<AddCard> {
                                   : Container(),
                             ),
                           ),
-                          ValidationError(
-                              errorMessage: 'أدخل وجه البطاقة',
-                              visible: controller.frontImageName!.isEmpty),
+                          ValidationError(errorMessage: 'أدخل وجه البطاقة', visible: controller.frontImageName!.isEmpty),
                           const SizedBox(height: 20),
                           RoundedButton(
                             color: Colors.white,
@@ -178,9 +174,7 @@ class _AddCardState extends State<AddCard> {
                                   : Container(),
                             ),
                           ),
-                          ValidationError(
-                              errorMessage: 'أدخل ظهر البطاقة',
-                              visible: controller.backImageName!.isEmpty),
+                          ValidationError(errorMessage: 'أدخل ظهر البطاقة', visible: controller.backImageName!.isEmpty),
                           const SizedBox(height: 20),
                           RoundedButton(
                             color: Colors.white,

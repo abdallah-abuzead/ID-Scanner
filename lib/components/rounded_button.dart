@@ -9,12 +9,14 @@ class RoundedButton extends StatelessWidget {
     required this.color,
     required this.onPressed,
     this.hasBorder = false,
+    this.height = 40,
   }) : super(key: key);
 
   final Color color;
   final Widget child;
   final Function() onPressed;
   final bool hasBorder;
+  final double height;
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +32,7 @@ class RoundedButton extends StatelessWidget {
         child: MaterialButton(
           onPressed: onPressed,
           minWidth: 200.0,
-          height: 40.0,
+          height: 40,
           child: child,
         ),
       ),
