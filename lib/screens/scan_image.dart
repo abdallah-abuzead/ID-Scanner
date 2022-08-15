@@ -107,21 +107,25 @@ class _ScanImageState extends State<ScanImage> {
                       // national_id
                       identityField(fName: 'الرقم القومى ', fValue: cardData.nationalId.toString(), bgColor: Colors.black),
                       // expiration_date
-                      identityField(fName: 'تاريخ الإنتهاء ', fValue: cardData.expirationDate.toString()),
+                      // identityField(fName: 'تاريخ الإنتهاء ', fValue: cardData.expirationDate.toString()),
                       // name
-                      identityField(fName: 'الإسم ', fValue: cardData.name.toString(), bgColor: Colors.black),
+                      identityField(fName: 'الإسم ', fValue: cardData.name.toString()),
                       // address
-                      identityField(fName: 'العنوان ', fValue: cardData.address.toString()),
+                      identityField(fName: 'العنوان ', fValue: cardData.address.toString(), bgColor: Colors.black),
                       // job
-                      identityField(fName: 'الوظيفة ', fValue: cardData.job.toString(), bgColor: Colors.black),
+                      // identityField(fName: 'الوظيفة ', fValue: cardData.job.toString(), bgColor: Colors.black),
                       // gender
                       identityField(fName: 'النوع ', fValue: cardData.gender.toString()),
                       // religion
-                      identityField(fName: 'الديانة ', fValue: cardData.religion.toString(), bgColor: Colors.black),
+                      // identityField(fName: 'الديانة ', fValue: cardData.religion.toString(), bgColor: Colors.black),
                       // marital_status
-                      identityField(fName: 'الحالة الإجتماعية ', fValue: cardData.maritalStatus.toString()),
+                      // identityField(fName: 'الحالة الإجتماعية ', fValue: cardData.maritalStatus.toString()),
                       // release_date
-                      identityField(fName: 'تاريخ الإصدار', fValue: cardData.releaseDate.toString(), bgColor: Colors.black),
+                      // identityField(fName: 'تاريخ الإصدار', fValue: cardData.releaseDate.toString(), bgColor: Colors.black),
+                      // birthdate
+                      identityField(fName: 'تاريخ الميلاد ', fValue: cardData.gender.toString(), bgColor: Colors.black),
+                      // birth_place
+                      identityField(fName: 'محل الميلاد ', fValue: cardData.gender.toString()),
                     ],
                   ),
                   const SizedBox(height: 50),
