@@ -5,28 +5,61 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:id_scanner/components/rounded_elevated_button.dart';
+import 'package:id_scanner/controllers/card_controller.dart';
 import 'package:id_scanner/controllers/internet_connection_controller.dart';
 import 'package:id_scanner/models/card_model.dart';
 
+import '../app_data.dart';
+import '../components/my_text.dart';
 import '../models/card_data.dart';
 import '../screens/scan_image.dart';
 
 class CardsList extends StatelessWidget {
-  const CardsList({Key? key, required this.cards}) : super(key: key);
-  final List<CardModel> cards;
+  const CardsList({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return GetBuilder<InternetConnectionController>(
-      builder: (controller) {
-        return GridView.count(
-          physics: const BouncingScrollPhysics(),
-          padding: const EdgeInsets.all(12),
-          crossAxisCount: 2,
-          crossAxisSpacing: 12,
-          mainAxisSpacing: 12,
-          children: cards
-              .map((card) => Container(
+      builder: (internetController) {
+        return GetBuilder<CardController>(builder: (cardController) {
+          return FutureBuilder<List>(
+            future: cardController.getAllLocalCards(),
+            builder: (context, AsyncSnapshot<List> snapshot) {
+              if (!snapshot.hasData) {
+                return Center(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: const [
+                      Text('Loading...'),
+                      SizedBox(width: 15),
+                      CircularProgressIndicator(),
+                    ],
+                  ),
+                );
+              } else if (snapshot.data!.isEmpty) {
+                return Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    MyText(
+                      text: 'لا توجد بطاقات',
+                      color: AppData.secondaryFontColor,
+                      fontSize: 17,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    const SizedBox(height: 80),
+                    const Icon(Icons.arrow_downward, size: 60)
+                  ],
+                );
+              }
+
+              return GridView.builder(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
+                itemCount: snapshot.data?.length,
+                physics: const BouncingScrollPhysics(),
+                padding: const EdgeInsets.all(12),
+                itemBuilder: (context, int i) {
+                  CardModel card = CardModel.fromMap(snapshot.data![i]);
+                  return Container(
                     // onTap: () => Get.toNamed(ScanImage.id, arguments: card),
                     child: Card(
                       elevation: 5,
@@ -52,8 +85,8 @@ class CardsList extends StatelessWidget {
                               child: RoundedElevatedButton(
                                   text: 'إرسال',
                                   onPressed: () async {
-                                    await controller.checkConnection();
-                                    if (controller.online) {
+                                    await internetController.checkConnection();
+                                    if (internetController.online) {
                                       // Map<String, dynamic> responseData = (await uploadImage2(card)) as Map<String, dynamic>;
                                       // CardData cardData = CardData.fromMap(responseData);
                                       CardData cardData = CardData();
@@ -66,7 +99,7 @@ class CardsList extends StatelessWidget {
                         ),
                         footer: Container(
                           margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 125),
-                          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
+                          padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 3),
                           color: Colors.black.withOpacity(0.5),
                           child: Text(
                             '${card.id}',
@@ -78,9 +111,12 @@ class CardsList extends StatelessWidget {
                         ),
                       ),
                     ),
-                  ))
-              .toList(),
-        );
+                  );
+                },
+              );
+            },
+          );
+        });
       },
     );
   }

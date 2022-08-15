@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:external_path/external_path.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_device_identifier/flutter_device_identifier.dart';
 import 'package:gallery_saver/gallery_saver.dart';
@@ -14,9 +15,7 @@ import '../utils/utils.dart';
 import 'location_controller.dart';
 
 class CardController extends GetxController {
-  List<CardModel> cards = [];
-  DBHelper db = DBHelper();
-  // /data/user/0/com.abuzead.id_scanner/cache/image_picker1391876657.jpg
+  DBHelper dbHelper = DBHelper();
 
   // Loading Indicator
   bool _isLoading = false;
@@ -60,58 +59,40 @@ class CardController extends GetxController {
     _frontImageName = _backImageName = ''.obs;
   }
 
+  Future<List> getAllLocalCards() async {
+    return await dbHelper.allCards();
+  }
+
   // Create New Card
   Future<void> createCard() async {
     var formData = formKey.currentState;
     if (formData!.validate() && _frontImageName!.isNotEmpty && _backImageName!.isNotEmpty) {
       formData.save();
       isLoading = true;
+      String extStoragePath = await ExternalPath.getExternalStoragePublicDirectory('ID Scanner');
       var currentPosition = await location.getCurrentLocation();
+
       if (currentPosition != null) {
         CardModel card = CardModel();
         card.id = '123-${DateTime.now()}';
         card.event = event?.name;
-        card.frontImagePath = frontImageFile.path;
-        card.backImagePath = backImageFile.path;
+        card.frontImagePath = '$extStoragePath/$frontImageName';
+        card.backImagePath = '$extStoragePath/$backImageName';
         card.lat = currentPosition.latitude;
         card.long = currentPosition.longitude;
         card.userAddress = await location.getCurrentAddress();
         card.deviceSerialNumber = await getSerialNumber();
-        cards.add(card);
-        // await db.addCard(card);
-
-        // await Future.delayed(const Duration(seconds: 1));
+        await dbHelper.addCard(card);
 
         isLoading = false;
 
         Get.back();
         resetAttributes();
-        // print(card.toMap());
+        print(card.toMap());
       } else {
         isLoading = false;
         showSnackBarAlert('Open Location Service.');
       }
-    }
-  }
-
-  Future<String?> getSerialNumber() async {
-    try {
-      // true if the permission is already granted
-      bool isPermissionAllowed = await FlutterDeviceIdentifier.checkPermission();
-      print('isPermissionAllowed:  $isPermissionAllowed');
-
-      if (!isPermissionAllowed) {
-        isPermissionAllowed = await FlutterDeviceIdentifier.requestPermission();
-        if (!isPermissionAllowed) {
-          print('return null;');
-        }
-      }
-      print('isPermissionAllowed:  $isPermissionAllowed');
-      String? serial = await FlutterDeviceIdentifier.serialCode;
-      print('===================================');
-      return serial;
-    } catch (e) {
-      return null;
     }
   }
 
@@ -121,28 +102,41 @@ class CardController extends GetxController {
     final file = await Utils.pickMedia(isCamera: camera);
     if (file == null || file == File('') || file.path == '') return;
 
-    print('=======================');
-    print(file.path);
+    // /storage/emulated/0/ID Scanner/
     String fileExtension = extension(file.path);
     String dir = dirname(file.path);
-    String newName = join(dir, 'front-${DateTime.now().millisecondsSinceEpoch}$fileExtension');
-    File tempFile = await file.copy(newName);
-    // await file.rename(newName);
-    print(tempFile.path);
-    print('=======================');
+    int now = DateTime.now().millisecondsSinceEpoch;
+    String newName;
 
     if (isFront) {
+      _frontImageName = Rx('front-$now$fileExtension');
+      newName = join(dir, frontImageName);
       _frontImageFile = Rx(file);
-      _frontImageName = Rx('front-${DateTime.now().millisecondsSinceEpoch}$fileExtension');
     } else {
+      _backImageName = Rx('back-$now$fileExtension');
+      newName = join(dir, backImageName);
       _backImageFile = Rx(file);
-      _backImageName = Rx('back-${DateTime.now().millisecondsSinceEpoch}$fileExtension');
     }
 
-// front-1659870192276.jpg
+    File tempFile = await file.copy(newName);
+
     /// save image to gallery
     await GallerySaver.saveImage(tempFile.path, albumName: 'ID Scanner');
     update();
+  }
+
+  Future<String?> getSerialNumber() async {
+    try {
+      // true if the permission is already granted
+      bool isPermissionAllowed = await FlutterDeviceIdentifier.checkPermission();
+      if (!isPermissionAllowed) {
+        isPermissionAllowed = await FlutterDeviceIdentifier.requestPermission();
+      }
+      String? serial = await FlutterDeviceIdentifier.serialCode;
+      return serial;
+    } catch (e) {
+      return null;
+    }
   }
 
   Future<File?> cropImage(File imageFile) async {

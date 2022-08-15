@@ -22,7 +22,6 @@ class LocationController extends GetxController {
     }
     // when location service is enabled & permission isn't denied, get the current location
     currentPosition = await Geolocator.getCurrentPosition();
-
     update();
     return currentPosition;
   }
@@ -57,14 +56,14 @@ class LocationController extends GetxController {
       //   localeIdentifier: 'ar-EG',
       // );
 
-      print(placeMarks.last.street);
-      print(' ${placeMarks.last.locality} '
-          '،${placeMarks.last.subAdministrativeArea} '
-          '،${placeMarks.last.administrativeArea}');
-      for (var placeMark in placeMarks) {
-        print(placeMark);
-        print('==============================================');
-      }
+      // print(placeMarks.last.street);
+      // print(' ${placeMarks.last.locality} '
+      //     '،${placeMarks.last.subAdministrativeArea} '
+      //     '،${placeMarks.last.administrativeArea}');
+      // for (var placeMark in placeMarks) {
+      //   print(placeMark);
+      //   print('==============================================');
+      // }
       return placeMarks.last.street;
     } catch (e) {
       return null;

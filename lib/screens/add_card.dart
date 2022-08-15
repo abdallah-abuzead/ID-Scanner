@@ -61,6 +61,7 @@ class _AddCardState extends State<AddCard> {
                     ),
                   ),
                 ),
+                const SizedBox(width: 5),
               ],
             ),
             body: ModalProgressHUD(
@@ -71,13 +72,13 @@ class _AddCardState extends State<AddCard> {
                 thumbVisibility: true,
                 // trackVisibility: true,
                 child: ListView(
-                  padding: const EdgeInsets.only(left: 25, right: 25, top: 20, bottom: 5),
+                  padding: const EdgeInsets.only(left: 25, right: 25, top: 0, bottom: 5),
                   children: [
-                    Text(
-                      'أدخل بيانات البطاقة ',
-                      style: TextStyle(color: AppData.secondaryFontColor, fontWeight: FontWeight.w500),
-                    ),
-                    const SizedBox(height: 20),
+                    // Text(
+                    //   'أدخل بيانات البطاقة ',
+                    //   style: TextStyle(color: AppData.secondaryFontColor, fontWeight: FontWeight.w500),
+                    // ),
+                    // const SizedBox(height: 20),
                     Form(
                       key: controller.formKey,
                       child: Column(
