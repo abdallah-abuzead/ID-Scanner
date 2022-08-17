@@ -123,9 +123,9 @@ class _ScanImageState extends State<ScanImage> {
                       // release_date
                       // identityField(fName: 'تاريخ الإصدار', fValue: cardData.releaseDate.toString(), bgColor: Colors.black),
                       // birthdate
-                      identityField(fName: 'تاريخ الميلاد ', fValue: cardData.gender.toString(), bgColor: Colors.black),
+                      identityField(fName: 'تاريخ الميلاد ', fValue: cardData.birthdate.toString(), bgColor: Colors.black),
                       // birth_place
-                      identityField(fName: 'محل الميلاد ', fValue: cardData.gender.toString()),
+                      identityField(fName: 'محل الميلاد ', fValue: cardData.birthPlace.toString()),
                     ],
                   ),
                   const SizedBox(height: 50),

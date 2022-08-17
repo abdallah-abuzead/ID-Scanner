@@ -88,10 +88,10 @@ class CardsList extends StatelessWidget {
                                     await internetController.checkConnection();
                                     if (internetController.online) {
                                       cardController.isLoading = true;
-                                      Map<String, dynamic> responseData = (await uploadImage2(card)) as Map<String, dynamic>;
+                                      Map<String, dynamic> responseData = await uploadImage2(card);
                                       CardData cardData = CardData.fromMap(responseData);
                                       // CardData cardData = CardData();
-                                      cardController.isLoading = true;
+                                      cardController.isLoading = false;
                                       Get.toNamed(ScanImage.id, arguments: cardData);
                                     }
                                   }),
@@ -123,7 +123,7 @@ class CardsList extends StatelessWidget {
     );
   }
 
-  Future<Map> uploadImage2(CardModel card) async {
+  Future<Map<String, dynamic>> uploadImage2(CardModel card) async {
     String frontImageName = card.frontImagePath!.split('/').last;
     String backImageName = card.backImagePath!.split('/').last;
     Uri url = Uri.parse('https://41.218.156.152/reader/api');
@@ -151,7 +151,9 @@ class CardsList extends StatelessWidget {
       var response = await request.send();
       var responseDataAsBytes = await response.stream.toBytes();
       var responseData = json.decode(utf8.decode(responseDataAsBytes));
+      print('===============================================================');
       print(responseData);
+      print('===============================================================');
       return responseData;
     } catch (e) {
       print(e);
