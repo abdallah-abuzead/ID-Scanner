@@ -21,7 +21,9 @@ class LocationController extends GetxController {
       }
     }
     // when location service is enabled & permission isn't denied, get the current location
+
     currentPosition = await Geolocator.getCurrentPosition();
+
     update();
     return currentPosition;
   }

@@ -69,7 +69,8 @@ class CardController extends GetxController {
     if (formData!.validate() && _frontImageName!.isNotEmpty && _backImageName!.isNotEmpty) {
       formData.save();
       isLoading = true;
-      String extStoragePath = await ExternalPath.getExternalStoragePublicDirectory('ID Scanner');
+      String extStoragePath =
+          await ExternalPath.getExternalStoragePublicDirectory(ExternalPath.DIRECTORY_DCIM + '/ID Scanner');
       var currentPosition = await location.getCurrentLocation();
 
       if (currentPosition != null) {
@@ -78,6 +79,7 @@ class CardController extends GetxController {
         card.event = event?.name;
         card.frontImagePath = '$extStoragePath/$frontImageName';
         card.backImagePath = '$extStoragePath/$backImageName';
+
         card.lat = currentPosition.latitude;
         card.long = currentPosition.longitude;
         card.userAddress = await location.getCurrentAddress();
@@ -121,7 +123,7 @@ class CardController extends GetxController {
     File tempFile = await file.copy(newName);
 
     /// save image to gallery
-    await GallerySaver.saveImage(tempFile.path, albumName: 'ID Scanner');
+    await GallerySaver.saveImage(tempFile.path, albumName: 'ID Scanner', toDcim: true);
     update();
   }
 
