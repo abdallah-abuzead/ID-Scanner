@@ -79,7 +79,6 @@ class CardController extends GetxController {
         card.event = event?.name;
         card.frontImagePath = '$extStoragePath/$frontImageName';
         card.backImagePath = '$extStoragePath/$backImageName';
-
         card.lat = currentPosition.latitude;
         card.long = currentPosition.longitude;
         card.userAddress = await location.getCurrentAddress();

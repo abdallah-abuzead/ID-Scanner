@@ -90,7 +90,6 @@ class CardsList extends StatelessWidget {
                                       cardController.isLoading = true;
                                       Map<String, dynamic> responseData = await uploadImage2(card);
                                       CardData cardData = CardData.fromMap(responseData);
-                                      // CardData cardData = CardData();
                                       cardController.isLoading = false;
                                       Get.toNamed(ScanImage.id, arguments: cardData);
                                     }

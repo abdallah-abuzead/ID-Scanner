@@ -22,6 +22,18 @@ class RoundedElevatedButton extends StatelessWidget {
             onPressed: controller.online
                 ? onPressed
                 : () async {
+                    Get.snackbar(
+                      'Alert',
+                      'No Internet Connection!',
+                      duration: const Duration(seconds: 3),
+                      backgroundColor: Colors.grey.shade600,
+                      snackPosition: SnackPosition.BOTTOM,
+                      colorText: Colors.white,
+                      icon: const Icon(Icons.wifi_off, size: 35),
+                      shouldIconPulse: false,
+                      padding: const EdgeInsets.all(20),
+                    );
+
                     await controller.checkConnection();
                   },
             style: ElevatedButton.styleFrom(
