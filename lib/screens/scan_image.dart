@@ -56,7 +56,7 @@ class _ScanImageState extends State<ScanImage> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 21),
                   Column(
                     children: [
                       // national_id
