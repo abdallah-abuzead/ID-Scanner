@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:id_scanner/components/rounded_elevated_button.dart';
@@ -59,56 +60,54 @@ class CardsList extends StatelessWidget {
                 padding: const EdgeInsets.all(12),
                 itemBuilder: (context, int i) {
                   CardModel card = CardModel.fromMap(snapshot.data![i]);
-                  return Container(
-                    // onTap: () => Get.toNamed(ScanImage.id, arguments: card),
-                    child: Card(
-                      elevation: 5,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                      child: GridTile(
-                        child: Column(
-                          children: [
-                            Expanded(
-                              flex: 4,
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(20),
-                                  border: Border.all(color: Colors.grey.shade400, width: 2),
-                                  image: DecorationImage(
-                                    image: FileImage(File(card.frontImagePath.toString())),
-                                    fit: BoxFit.cover,
-                                  ),
+                  return Card(
+                    elevation: 5,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                    child: GridTile(
+                      child: Column(
+                        children: [
+                          Expanded(
+                            flex: 4,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(color: Colors.grey.shade400, width: 2),
+                                image: DecorationImage(
+                                  image: FileImage(File(card.frontImagePath.toString())),
+                                  fit: BoxFit.cover,
                                 ),
                               ),
                             ),
-                            const SizedBox(height: 3),
-                            Expanded(
-                              child: RoundedElevatedButton(
-                                  text: 'إرسال',
-                                  onPressed: () async {
-                                    await internetController.checkConnection();
-                                    if (internetController.online) {
-                                      cardController.isLoading = true;
-                                      Map<String, dynamic> responseData = await uploadImage2(card);
-                                      CardData cardData = CardData.fromMap(responseData);
-                                      cardController.isLoading = false;
-                                      Get.toNamed(ScanImage.id, arguments: cardData);
-                                    }
-                                  }),
-                            ),
-                            const SizedBox(height: 3),
-                          ],
-                        ),
-                        footer: Container(
-                          margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 125),
-                          padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 3),
-                          color: Colors.black.withOpacity(0.5),
-                          child: Text(
-                            '${card.id}',
-                            style: const TextStyle(color: Colors.white, fontSize: 15),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            textAlign: TextAlign.center,
                           ),
+                          const SizedBox(height: 3),
+                          Expanded(
+                            child: RoundedElevatedButton(
+                              text: 'إرسال',
+                              onPressed: () async {
+                                await internetController.checkConnection();
+                                if (internetController.online) {
+                                  cardController.isLoading = true;
+                                  Map<String, dynamic> responseData = await _scanCard(card);
+                                  CardData cardData = CardData.fromMap(responseData);
+                                  cardController.isLoading = false;
+                                  Get.toNamed(ScanImage.id, arguments: cardData);
+                                }
+                              },
+                            ),
+                          ),
+                          const SizedBox(height: 3),
+                        ],
+                      ),
+                      footer: Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 125),
+                        padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 3),
+                        color: Colors.black.withOpacity(0.5),
+                        child: Text(
+                          '${card.id}',
+                          style: const TextStyle(color: Colors.white, fontSize: 15),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
                         ),
                       ),
                     ),
@@ -122,41 +121,52 @@ class CardsList extends StatelessWidget {
     );
   }
 
-  Future<Map<String, dynamic>> uploadImage2(CardModel card) async {
+  Future<Map<String, dynamic>> _scanCard(CardModel card) async {
     String frontImageName = card.frontImagePath!.split('/').last;
     String backImageName = card.backImagePath!.split('/').last;
-    Uri url = Uri.parse('https://41.218.156.152/reader/api');
-    // Uri url = Uri.parse('http://192.168.1.130:8000/reader/api');
-
+    Uri url = Uri.parse('https://41.218.156.154/reader/api');
     var request = http.MultipartRequest('POST', url);
     //============================================================
-    var picture1 = http.MultipartFile(
-      'image_url',
-      File(card.frontImagePath.toString()).readAsBytes().asStream(),
-      File(card.frontImagePath.toString()).lengthSync(),
-      filename: frontImageName,
-    );
-    //============================================================
-    // var picture2 = http.MultipartFile.fromBytes(
-    //   'image_url2',
-    //   (await rootBundle.load(File(card.backImagePath.toString()).toString())).buffer.asUint8List(),
-    //   filename: backImageName,
-    // );
-    //============================================================
-    request.files.add(picture1);
-    // request.files.add(picture2);
+    var frontImage =
+        _createFormFileFromStream(jsonKey: 'front_image', filePath: card.frontImagePath, fileName: frontImageName);
+    var backImage = _createFormFileFromStream(jsonKey: 'back_image', filePath: card.backImagePath, fileName: backImageName);
+    request.files.add(frontImage);
+    request.files.add(backImage);
     //============================================================
     try {
       var response = await request.send();
       var responseDataAsBytes = await response.stream.toBytes();
       var responseData = json.decode(utf8.decode(responseDataAsBytes));
-      print('===============================================================');
       print(responseData);
-      print('===============================================================');
       return responseData;
     } catch (e) {
-      print(e);
+      return {};
     }
-    return {};
+  }
+
+  http.MultipartFile _createFormFileFromStream({
+    required String jsonKey,
+    required String? filePath,
+    required String fileName,
+  }) {
+    return http.MultipartFile(
+      jsonKey,
+      File(filePath.toString()).readAsBytes().asStream(),
+      File(filePath.toString()).lengthSync(),
+      filename: fileName,
+    );
+  }
+
+  Future<http.MultipartFile> _createFormFileFromBytes({
+    required String jsonKey,
+    required String? filePath,
+    required String fileName,
+  }) async {
+    /// load file from assets
+    return http.MultipartFile.fromBytes(
+      jsonKey,
+      (await rootBundle.load('images/omar.jpeg')).buffer.asUint8List(),
+      filename: fileName,
+    );
   }
 }

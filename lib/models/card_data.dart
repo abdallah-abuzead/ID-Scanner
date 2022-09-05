@@ -10,24 +10,30 @@ class CardData {
       // religion,
       // maritalStatus,
       // releaseDate,
+      // info,
       birthdate,
-      birthPlace;
+      birthPlace,
+      croppedPersonalImage,
+      croppedIdImage;
 
   CardData();
 
-  CardData.fromMap(Map<String, dynamic> cardData) {
-    // id = cardData['id'];
-    nationalId = cardData['national_id'];
-    // expirationDate = cardData['expiration_date'];
-    name = cardData['name'];
-    address = cardData['address'];
-    // job = cardData['job'];
-    gender = cardData['gender'];
-    // religion = cardData['religion'];
-    // maritalStatus = cardData['marital_status'];
-    // releaseDate = cardData['release_date'];
-    birthdate = cardData['birthdate'];
-    birthPlace = cardData['birth_place'];
+  CardData.fromMap(Map<String, dynamic> jsonCardData) {
+    // id = jsonCardData['id'];
+    nationalId = jsonCardData['national_id'];
+    // expirationDate = jsonCardData['expiration_date'];
+    name = jsonCardData['name'];
+    address = jsonCardData['address'];
+    // job = jsonCardData['job'];
+    gender = jsonCardData['gender'];
+    // religion = jsonCardData['religion'];
+    // maritalStatus = jsonCardData['marital_status'];
+    // releaseDate = jsonCardData['release_date'];
+    // info = jsonCardData['info'];
+    birthdate = jsonCardData['birthdate'];
+    birthPlace = jsonCardData['birth_place'];
+    croppedPersonalImage = jsonCardData['cropped_personal_image'];
+    croppedIdImage = jsonCardData['cropped_id_image'];
   }
 
   Map<String, dynamic> toMap() => {
@@ -41,7 +47,10 @@ class CardData {
         // 'religion': religion,
         // 'marital_status': maritalStatus,
         // 'release_date': releaseDate,
+        // 'info': info,
         'birthdate': birthdate,
         'birth_place': birthPlace,
+        'cropped_personal_image': croppedPersonalImage,
+        'cropped_id_image': croppedIdImage,
       };
 }

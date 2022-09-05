@@ -1,12 +1,9 @@
 import 'dart:convert';
-import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:http/http.dart' as http;
 import 'package:id_scanner/controllers/card_controller.dart';
-import 'package:id_scanner/models/card_model.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 
 import '../models/card_data.dart';
@@ -17,18 +14,12 @@ class ScanImage extends StatefulWidget {
   static const String id = '/scan_image';
 
   @override
-  _ScanImageState createState() => _ScanImageState();
+  State<ScanImage> createState() => _ScanImageState();
 }
 
 class _ScanImageState extends State<ScanImage> {
   CardData cardData = Get.arguments;
-  // CardModel card = Get.arguments;
-  // Map cardData = {};
-  bool error = false;
-  @override
-  initState() {
-    super.initState();
-  }
+  int fieldId = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -41,91 +32,57 @@ class _ScanImageState extends State<ScanImage> {
               centerTitle: true,
               title: const Text('مسح البطاقة'),
               backgroundColor: Colors.black,
-              actions: [
-                IconButton(
-                  onPressed: () => Get.toNamed(IDReport.id),
-                  icon: const Icon(Icons.note, size: 25),
-                )
-              ],
+              actions: [IconButton(onPressed: () => Get.toNamed(IDReport.id), icon: const Icon(Icons.note, size: 25))],
             ),
             body: ModalProgressHUD(
               inAsyncCall: controller.isLoading,
               child: ListView(
                 padding: const EdgeInsets.all(10),
                 children: [
-                  // Container(
-                  //   margin: const EdgeInsets.symmetric(horizontal: 8),
-                  //   height: 150,
-                  //   decoration: BoxDecoration(
-                  //     image: DecorationImage(
-                  //       image: FileImage(File(card.frontImagePath.toString())),
-                  //       fit: BoxFit.cover,
-                  //     ),
-                  //   ),
-                  //   // child: Image.file(File(card.frontImagePath.toString())),
-                  //   // child: Image.asset('images/hatem.jpeg'),
-                  // ),
                   Container(
                     margin: const EdgeInsets.symmetric(horizontal: 8),
                     height: 150,
                     child: Row(
                       children: [
-                        Expanded(
-                          flex: 2,
-                          child: Container(color: Colors.grey, margin: const EdgeInsets.all(2)),
-                        ),
+                        Expanded(flex: 2, child: _getImage(cardData.croppedIdImage.toString())),
                         Expanded(
                           child: Column(
                             children: [
-                              Expanded(child: Container(color: Colors.grey, margin: const EdgeInsets.all(2))),
-                              Expanded(child: Container(color: Colors.grey, margin: const EdgeInsets.all(2))),
+                              Expanded(child: _getImage(cardData.croppedPersonalImage.toString())),
+                              // Expanded(child: Container(color: Colors.grey, margin: const EdgeInsets.all(2))),
                             ],
                           ),
                         ),
                       ],
                     ),
                   ),
-                  // const SizedBox(height: 10),
-                  // Container(
-                  //   height: 50,
-                  //   margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
-                  //   child: ElevatedButton(
-                  //     child: const Text('إرسال', style: TextStyle(fontSize: 16)),
-                  //     onPressed: () async {
-                  //       error = false;
-                  //       cardData = {};
-                  //       controller.isLoading = true;
-                  //       // cardData = await uploadImage();
-                  //       cardData = await uploadImage2(card);
-                  //       controller.isLoading = false;
-                  //     },
-                  //   ),
-                  // ),
                   const SizedBox(height: 20),
                   Column(
                     children: [
                       // national_id
-                      identityField(fName: 'الرقم القومى ', fValue: cardData.nationalId.toString(), bgColor: Colors.black),
+                      _identityField(fName: 'الرقم القومى ', fValue: cardData.nationalId),
                       // expiration_date
-                      // identityField(fName: 'تاريخ الإنتهاء ', fValue: cardData.expirationDate.toString()),
+                      // _identityField(fName: 'تاريخ الإنتهاء ', fValue: cardData.expirationDate),
                       // name
-                      identityField(fName: 'الإسم ', fValue: cardData.name.toString()),
+                      _identityField(fName: 'الإسم ', fValue: cardData.name),
                       // address
-                      identityField(fName: 'العنوان ', fValue: cardData.address.toString(), bgColor: Colors.black),
+                      _identityField(fName: 'العنوان ', fValue: cardData.address),
                       // job
-                      // identityField(fName: 'الوظيفة ', fValue: cardData.job.toString(), bgColor: Colors.black),
+                      // _identityField(fName: 'الوظيفة ', fValue: cardData.job),
                       // gender
-                      identityField(fName: 'النوع ', fValue: cardData.gender.toString()),
+                      _identityField(fName: 'النوع ', fValue: cardData.gender),
                       // religion
-                      // identityField(fName: 'الديانة ', fValue: cardData.religion.toString(), bgColor: Colors.black),
+                      // _identityField(fName: 'الديانة ', fValue: cardData.religion),
                       // marital_status
-                      // identityField(fName: 'الحالة الإجتماعية ', fValue: cardData.maritalStatus.toString()),
+                      // _identityField(fName: 'الحالة الإجتماعية ', fValue: cardData.maritalStatus),
                       // release_date
-                      // identityField(fName: 'تاريخ الإصدار', fValue: cardData.releaseDate.toString(), bgColor: Colors.black),
+                      // _identityField(fName: 'تاريخ الإصدار', fValue: cardData.releaseDate),
                       // birthdate
-                      identityField(fName: 'تاريخ الميلاد ', fValue: cardData.birthdate.toString(), bgColor: Colors.black),
+                      _identityField(fName: 'تاريخ الميلاد ', fValue: cardData.birthdate),
                       // birth_place
-                      identityField(fName: 'محل الميلاد ', fValue: cardData.birthPlace.toString()),
+                      _identityField(fName: 'محل الميلاد ', fValue: cardData.birthPlace),
+                      // info
+                      // _identityField(fName: 'بيانات أخرى ', fValue: cardData.info),
                     ],
                   ),
                   const SizedBox(height: 50),
@@ -138,106 +95,33 @@ class _ScanImageState extends State<ScanImage> {
     );
   }
 
-  Widget identityField({
-    required String fName,
-    required String fValue,
-    Color bgColor = Colors.white,
-  }) {
+  Widget _identityField({required String fName, required String? fValue}) {
+    fieldId++;
+    bool isOdd = (fieldId % 2) == 1;
     return Container(
-      color: bgColor,
+      color: isOdd ? Colors.black : Colors.white,
       margin: const EdgeInsets.symmetric(horizontal: 8),
       child: ListTile(
-        leading: Text(
-          '$fName:',
-          style: TextStyle(
-            color: bgColor != Colors.white ? Colors.white : Colors.black,
-            fontSize: 18,
-          ),
-        ),
-        title: Text(
-          fValue,
-          style: TextStyle(color: bgColor != Colors.white ? Colors.white : Colors.blue),
-        ),
+        leading: Text('$fName:', style: TextStyle(color: isOdd ? Colors.white : Colors.black, fontSize: 18)),
+        title: Text(fValue.toString(), style: TextStyle(color: isOdd ? Colors.white : Colors.blue)),
         contentPadding: const EdgeInsets.symmetric(horizontal: 8),
       ),
     );
   }
 
-  // Future scan(CardModel card) async {
-  //   String frontImageName = card.frontImagePath!.split('/').last;
-  //   String backImageName = card.backImagePath!.split('/').last;
-  //   String base64Front = base64Encode(File(card.frontImagePath.toString()).readAsBytesSync());
-  //   String base64Back = base64Encode(File(card.backImagePath.toString()).readAsBytesSync());
-  //   Uri url = Uri.parse('http://192.168.1.112:8000/reader/api');
-  //   var data = {'base64_front': base64Front,'base64_back': base64Back };
-  //   http.Response response = await http.post(url, body: data);
-  //   var responseBody = jsonDecode(response.body);
-  // }
-
-  // https://41.218.156.152/reader/api
-
-  Future<Map> uploadImage() async {
-    // Uri url = Uri.parse('http://192.168.1.130:8000/reader/api'); // my local device ip
-    Uri url = Uri.parse('https://41.218.156.152/reader/api'); // published ip
-    // Uri url = Uri.parse('http://10.18.121.93/reader/api'); // machine ip
-    var request = http.MultipartRequest('POST', url);
-    // request.fields['title'] = 'Upload Image';
-    // request.headers['Authorization'] = '';
-    var picture = http.MultipartFile.fromBytes(
-      'image_url',
-      (await rootBundle.load('images/omar.jpeg')).buffer.asUint8List(),
-      filename: 'test.jpeg',
+  Widget _getImage(String encodedImage) {
+    Uint8List decodedImage = base64Decode(encodedImage);
+    return Container(
+      margin: const EdgeInsets.all(2),
+      decoration: BoxDecoration(
+        color: Colors.grey,
+        border: Border.all(color: Colors.grey),
+        borderRadius: BorderRadius.circular(5),
+        image: DecorationImage(
+          image: MemoryImage(decodedImage),
+          fit: BoxFit.fill,
+        ),
+      ),
     );
-    request.files.add(picture);
-
-    try {
-      var response = await request.send();
-      print(response.statusCode);
-      var responseDataAsBytes = await response.stream.toBytes();
-      var responseData = json.decode(utf8.decode(responseDataAsBytes));
-      print(responseData);
-      return responseData;
-      // var result = String.fromCharCodes(responseDataAsBytes);
-    } catch (e) {
-      print(e);
-      error = true;
-    }
-    return {};
-  }
-
-  Future<Map> uploadImage2(CardModel card) async {
-    String frontImageName = card.frontImagePath!.split('/').last;
-    String backImageName = card.backImagePath!.split('/').last;
-    Uri url = Uri.parse('https://41.218.156.152/reader/api');
-    // Uri url = Uri.parse('http://192.168.1.130:8000/reader/api');
-
-    var request = http.MultipartRequest('POST', url);
-    //============================================================
-    var picture1 = http.MultipartFile(
-      'image_url',
-      File(card.frontImagePath.toString()).readAsBytes().asStream(),
-      File(card.frontImagePath.toString()).lengthSync(),
-      filename: frontImageName,
-    );
-    //============================================================
-    // var picture2 = http.MultipartFile.fromBytes(
-    //   'image_url2',
-    //   (await rootBundle.load(File(card.backImagePath.toString()).toString())).buffer.asUint8List(),
-    //   filename: backImageName,
-    // );
-    //============================================================
-    request.files.add(picture1);
-    // request.files.add(picture2);
-    //============================================================
-    try {
-      var response = await request.send();
-      var responseDataAsBytes = await response.stream.toBytes();
-      var responseData = json.decode(utf8.decode(responseDataAsBytes));
-      print(responseData);
-      return responseData;
-    } catch (e) {
-      print(e);
-    }
-    return {};
   }
 }
