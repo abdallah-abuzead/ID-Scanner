@@ -18,14 +18,14 @@ class _IDReportState extends State<IDReport> {
         body: ListView(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
           children: [
-            identityField(fName: 'الرقم القومى', fValue: '29506451278964'),
-            identityField(fName: 'تاريخ الإنتهاء', fValue: '15 / 3 / 2025'),
-            identityField(fName: 'الإسم', fValue: 'محمد عبدالله عبد عبدالواحد'),
-            identityField(fName: 'العنوان', fValue: '7 ش شوشة - الزقازيق - الشرقية'),
-            identityField(fName: 'الوظيفة', fValue: 'محامى حر'),
-            identityField(fName: 'النوع', fValue: 'ذكر'),
-            identityField(fName: 'الديانة', fValue: 'مسلم'),
-            identityField(fName: 'الحالة الإجتماعية', fValue: 'متزوج'),
+            _identityField(fName: 'الرقم القومى', fValue: '29506451278964'),
+            _identityField(fName: 'تاريخ الإنتهاء', fValue: '15 / 3 / 2025'),
+            _identityField(fName: 'الإسم', fValue: 'محمد عبدالله عبد عبدالواحد'),
+            _identityField(fName: 'العنوان', fValue: '7 ش شوشة - الزقازيق - الشرقية'),
+            _identityField(fName: 'الوظيفة', fValue: 'محامى حر'),
+            _identityField(fName: 'النوع', fValue: 'ذكر'),
+            _identityField(fName: 'الديانة', fValue: 'مسلم'),
+            _identityField(fName: 'الحالة الإجتماعية', fValue: 'متزوج'),
             const SizedBox(height: 20),
             Container(
               height: 50,
@@ -42,30 +42,12 @@ class _IDReportState extends State<IDReport> {
   }
 }
 
-Widget identityField({
-  required String fName,
-  required String fValue,
-  Color bgColor = Colors.white,
-}) {
+Widget _identityField({required String fName, required String fValue}) {
   return Container(
-    color: bgColor,
     margin: const EdgeInsets.symmetric(horizontal: 15),
     child: ListTile(
-      leading: Text(
-        '$fName:',
-        style: TextStyle(
-          color: bgColor != Colors.white ? Colors.white : Colors.black,
-          fontSize: 18,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-      title: Text(
-        fValue,
-        style: TextStyle(
-          color: bgColor != Colors.white ? Colors.white : Colors.black,
-          fontSize: 16,
-        ),
-      ),
+      leading: Text('$fName:', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+      title: Text(fValue, style: const TextStyle(fontSize: 16)),
       contentPadding: const EdgeInsets.symmetric(horizontal: 8),
     ),
   );

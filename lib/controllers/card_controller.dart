@@ -10,6 +10,7 @@ import 'package:id_scanner/models/card_model.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:path/path.dart';
 
+import '../components/show_snack_bar.dart';
 import '../utils/db_helper.dart';
 import '../utils/utils.dart';
 import 'location_controller.dart';
@@ -33,9 +34,9 @@ class CardController extends GetxController {
     update();
   }
 
-  final TextEditingController eventController = TextEditingController();
   Event? event;
-  final formKey = GlobalKey<FormState>();
+  final createFormKey = GlobalKey<FormState>();
+  final editFormKey = GlobalKey<FormState>();
   Rx<String>? _frontImageName = ''.obs;
   String? get frontImageName => _frontImageName!.value;
   Rx<String>? _backImageName = ''.obs;
@@ -47,14 +48,8 @@ class CardController extends GetxController {
   File get backImageFile => _backImageFile!.value;
   LocationController location = LocationController();
 
-  @override
-  void dispose() {
-    eventController.dispose();
-    super.dispose();
-  }
-
   void resetAttributes() {
-    eventController.clear();
+    event = null;
     _frontImageFile = _backImageFile = null;
     _frontImageName = _backImageName = ''.obs;
   }
@@ -63,9 +58,26 @@ class CardController extends GetxController {
     return await dbHelper.allCards();
   }
 
+  Future<int> deleteLocalCard(CardModel card) async {
+    _deleteFile(File(card.frontImagePath.toString()));
+    _deleteFile(File(card.backImagePath.toString()));
+
+    return await dbHelper.deleteCard(card.id.toString());
+  }
+
+  Future<void> _deleteFile(File file) async {
+    try {
+      if (await file.exists()) {
+        await file.delete();
+      }
+    } catch (e) {
+      print("File doesn't exist.");
+    }
+  }
+
   // Create New Card
   Future<void> createCard() async {
-    var formData = formKey.currentState;
+    var formData = createFormKey.currentState;
     if (formData!.validate() && _frontImageName!.isNotEmpty && _backImageName!.isNotEmpty) {
       formData.save();
       isLoading = true;
@@ -92,7 +104,44 @@ class CardController extends GetxController {
         print(card.toMap());
       } else {
         isLoading = false;
-        showSnackBarAlert('Open Location Service.');
+        showLocationAlertSnackBar('Open Location Service.');
+      }
+    }
+  }
+
+  // Create New Card
+  Future<void> editCard(CardModel card) async {
+    var formData = editFormKey.currentState;
+    if (formData!.validate()) {
+      formData.save();
+      isLoading = true;
+      String extStoragePath =
+          await ExternalPath.getExternalStoragePublicDirectory(ExternalPath.DIRECTORY_DCIM + '/ID Scanner');
+      var currentPosition = await location.getCurrentLocation();
+
+      if (currentPosition != null) {
+        if (event != null) card.event = event?.name;
+        if (_frontImageName!.isNotEmpty) {
+          _deleteFile(File(card.frontImagePath.toString()));
+          card.frontImagePath = '$extStoragePath/$frontImageName';
+        }
+        if (_backImageName!.isNotEmpty) {
+          _deleteFile(File(card.backImagePath.toString()));
+          card.backImagePath = '$extStoragePath/$backImageName';
+        }
+        card.lat = currentPosition.latitude;
+        card.long = currentPosition.longitude;
+        card.userAddress = await location.getCurrentAddress();
+        card.deviceSerialNumber = await getSerialNumber();
+        await dbHelper.updateCard(card);
+
+        isLoading = false;
+
+        Get.back();
+        resetAttributes();
+      } else {
+        isLoading = false;
+        showLocationAlertSnackBar('Open Location Service.');
       }
     }
   }
@@ -103,7 +152,7 @@ class CardController extends GetxController {
     final file = await Utils.pickMedia(isCamera: camera);
     if (file == null || file == File('') || file.path == '') return;
 
-    // /storage/emulated/0/ID Scanner/
+    // /storage/emulated/0/DCIM/ID Scanner/
     String fileExtension = extension(file.path);
     String dir = dirname(file.path);
     int now = DateTime.now().millisecondsSinceEpoch;
@@ -159,20 +208,6 @@ class CardController extends GetxController {
       toolbarWidgetColor: Colors.white,
       hideBottomControls: false,
       lockAspectRatio: false,
-    );
-  }
-
-  SnackbarController showSnackBarAlert(String errorMessage) {
-    return Get.snackbar(
-      'Alert',
-      errorMessage,
-      duration: const Duration(seconds: 3),
-      backgroundColor: Colors.red.shade400,
-      snackPosition: SnackPosition.BOTTOM,
-      colorText: Colors.white,
-      icon: const Icon(Icons.gps_fixed, color: Colors.blue, size: 35),
-      shouldIconPulse: false,
-      padding: const EdgeInsets.all(20),
     );
   }
 }

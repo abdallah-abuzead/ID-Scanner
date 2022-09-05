@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:id_scanner/screens/add_card.dart';
 import 'package:id_scanner/screens/dynamic_form.dart';
+import 'package:id_scanner/screens/edit_card.dart';
 import 'package:id_scanner/screens/home.dart';
 import 'package:id_scanner/screens/id_report.dart';
 import 'package:id_scanner/screens/login.dart';
@@ -35,6 +36,7 @@ class MyApp extends StatelessWidget {
         GetPage(name: Home.id, page: () => const Home()),
         GetPage(name: ScanImage.id, page: () => const ScanImage()),
         GetPage(name: AddCard.id, page: () => const AddCard()),
+        GetPage(name: EditCard.id, page: () => const EditCard()),
         GetPage(name: DynamicFrom.id, page: () => const DynamicFrom()),
         GetPage(name: IDReport.id, page: () => const IDReport()),
       ],

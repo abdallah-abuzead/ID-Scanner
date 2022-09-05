@@ -5,10 +5,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import 'package:id_scanner/components/alert_dialog.dart';
 import 'package:id_scanner/components/rounded_elevated_button.dart';
+import 'package:id_scanner/components/show_snack_bar.dart';
 import 'package:id_scanner/controllers/card_controller.dart';
 import 'package:id_scanner/controllers/internet_connection_controller.dart';
 import 'package:id_scanner/models/card_model.dart';
+import 'package:id_scanner/screens/edit_card.dart';
+import 'package:id_scanner/screens/home.dart';
 
 import '../app_data.dart';
 import '../components/my_text.dart';
@@ -63,53 +67,95 @@ class CardsList extends StatelessWidget {
                   return Card(
                     elevation: 5,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                    child: GridTile(
-                      child: Column(
-                        children: [
-                          Expanded(
-                            flex: 4,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(20),
-                                border: Border.all(color: Colors.grey.shade400, width: 2),
-                                image: DecorationImage(
-                                  image: FileImage(File(card.frontImagePath.toString())),
-                                  fit: BoxFit.cover,
+                    child: Stack(
+                      children: [
+                        GridTile(
+                          child: Column(
+                            children: [
+                              Expanded(
+                                flex: 4,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(20),
+                                    border: Border.all(color: Colors.grey.shade400, width: 2),
+                                    image: DecorationImage(
+                                      image: FileImage(File(card.frontImagePath.toString())),
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
                                 ),
                               ),
+                              const SizedBox(height: 3),
+                              Expanded(
+                                child: RoundedElevatedButton(
+                                  text: 'إرسال',
+                                  onPressed: () async {
+                                    await internetController.checkConnection();
+                                    if (internetController.online) {
+                                      cardController.isLoading = true;
+                                      Map<String, dynamic> responseData = await _scanCard(card);
+                                      CardData cardData = CardData.fromMap(responseData);
+                                      cardController.isLoading = false;
+                                      Get.toNamed(ScanImage.id, arguments: cardData);
+                                    }
+                                  },
+                                ),
+                              ),
+                              const SizedBox(height: 3),
+                            ],
+                          ),
+                          footer: Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 125),
+                            padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 3),
+                            color: Colors.black.withOpacity(0.5),
+                            child: Text(
+                              '${card.id}',
+                              style: const TextStyle(color: Colors.white, fontSize: 15),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.center,
                             ),
                           ),
-                          const SizedBox(height: 3),
-                          Expanded(
-                            child: RoundedElevatedButton(
-                              text: 'إرسال',
+                        ),
+                        Positioned(
+                          bottom: 50,
+                          left: 10,
+                          child: Container(
+                            decoration: BoxDecoration(borderRadius: BorderRadius.circular(30), color: Colors.black54),
+                            child: IconButton(
+                              visualDensity: VisualDensity.compact,
+                              icon: const Icon(Icons.delete_outline, color: Colors.white),
                               onPressed: () async {
-                                await internetController.checkConnection();
-                                if (internetController.online) {
-                                  cardController.isLoading = true;
-                                  Map<String, dynamic> responseData = await _scanCard(card);
-                                  CardData cardData = CardData.fromMap(responseData);
-                                  cardController.isLoading = false;
-                                  Get.toNamed(ScanImage.id, arguments: cardData);
-                                }
+                                await kAlertDialog(
+                                  content: 'Delete this card?',
+                                  onConfirm: () async {
+                                    cardController.isLoading = true;
+                                    int count = await cardController.deleteLocalCard(card);
+                                    cardController.isLoading = false;
+                                    if (count == 1) {
+                                      cardController.isLoading = false;
+                                      showSuccessSnackBar('Card is deleted successfully.');
+                                      Get.offAndToNamed(Home.id);
+                                    }
+                                  },
+                                );
                               },
                             ),
                           ),
-                          const SizedBox(height: 3),
-                        ],
-                      ),
-                      footer: Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 125),
-                        padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 3),
-                        color: Colors.black.withOpacity(0.5),
-                        child: Text(
-                          '${card.id}',
-                          style: const TextStyle(color: Colors.white, fontSize: 15),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          textAlign: TextAlign.center,
                         ),
-                      ),
+                        Positioned(
+                          bottom: 50,
+                          right: 10,
+                          child: Container(
+                            decoration: BoxDecoration(borderRadius: BorderRadius.circular(30), color: Colors.black54),
+                            child: IconButton(
+                              visualDensity: VisualDensity.compact,
+                              icon: const Icon(Icons.edit, color: Colors.white),
+                              onPressed: () => Get.toNamed(EditCard.id, arguments: card),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   );
                 },

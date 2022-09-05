@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:id_scanner/components/show_snack_bar.dart';
 import 'package:id_scanner/controllers/internet_connection_controller.dart';
 
 class RoundedElevatedButton extends StatelessWidget {
@@ -22,17 +23,7 @@ class RoundedElevatedButton extends StatelessWidget {
             onPressed: controller.online
                 ? onPressed
                 : () async {
-                    Get.snackbar(
-                      'Alert',
-                      'No Internet Connection!',
-                      duration: const Duration(seconds: 3),
-                      backgroundColor: Colors.grey.shade600,
-                      snackPosition: SnackPosition.BOTTOM,
-                      colorText: Colors.white,
-                      icon: const Icon(Icons.wifi_off, size: 35),
-                      shouldIconPulse: false,
-                      padding: const EdgeInsets.all(20),
-                    );
+                    showNoInternetConnectionSnackBar();
 
                     await controller.checkConnection();
                   },

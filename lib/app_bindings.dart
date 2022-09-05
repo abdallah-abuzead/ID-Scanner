@@ -5,7 +5,7 @@ import 'package:id_scanner/controllers/internet_connection_controller.dart';
 class AppBindings extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut(() => CardController(), fenix: true);
+    Get.put(CardController());
     Get.put(InternetConnectionController(), permanent: true);
   }
 }

@@ -1,11 +1,13 @@
+import 'dart:io';
+
 import 'package:dotted_border/dotted_border.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:id_scanner/components/validation/validation_error.dart';
 import 'package:id_scanner/controllers/card_controller.dart';
 import 'package:id_scanner/enums/event_enum.dart';
+import 'package:id_scanner/models/card_model.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 
 import '../app_data.dart';
@@ -14,15 +16,16 @@ import '../components/input_filed_decoration.dart';
 import '../components/my_text.dart';
 import '../components/rounded_button.dart';
 
-class AddCard extends StatefulWidget {
-  const AddCard({Key? key}) : super(key: key);
-  static const String id = '/add_card';
+class EditCard extends StatefulWidget {
+  const EditCard({Key? key}) : super(key: key);
+  static const String id = '/edit_card';
 
   @override
-  State<AddCard> createState() => _AddCardState();
+  State<EditCard> createState() => _EditCardState();
 }
 
-class _AddCardState extends State<AddCard> {
+class _EditCardState extends State<EditCard> {
+  CardModel card = Get.arguments;
   @override
   Widget build(BuildContext context) {
     return GetBuilder<CardController>(
@@ -32,7 +35,7 @@ class _AddCardState extends State<AddCard> {
           child: Scaffold(
             backgroundColor: Colors.white,
             appBar: AppBar(
-              title: Text('إنشاء ملف البطاقة', style: TextStyle(color: AppData.primaryFontColor)),
+              title: Text('تعديل ملف البطاقة', style: TextStyle(color: AppData.primaryFontColor)),
               backgroundColor: Colors.white,
               centerTitle: true,
               elevation: 0,
@@ -78,13 +81,14 @@ class _AddCardState extends State<AddCard> {
                   padding: const EdgeInsets.only(left: 25, right: 25, top: 0, bottom: 5),
                   children: [
                     Form(
-                      key: controller.createFormKey,
+                      key: controller.editFormKey,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           inputLabel('النشاط'),
                           const SizedBox(height: 5),
                           DropdownButtonFormField2(
+                            value: card.event == null ? null : getEvent(card.event.toString()),
                             decoration: kAddCardInputFieldDecoration,
                             isExpanded: true,
                             icon: const Icon(Icons.keyboard_arrow_down),
@@ -114,20 +118,18 @@ class _AddCardState extends State<AddCard> {
                             child: Container(
                               height: 140,
                               alignment: Alignment.center,
-                              decoration: controller.frontImageName!.isEmpty
-                                  ? const BoxDecoration()
-                                  : BoxDecoration(
-                                      image: DecorationImage(
-                                        image: FileImage(controller.frontImageFile),
-                                        fit: BoxFit.cover,
-                                      ),
-                                    ),
-                              child: controller.frontImageName!.isEmpty
-                                  ? Icon(Icons.image, color: AppData.placeholderColor, size: 80)
-                                  : Container(),
+                              decoration: BoxDecoration(
+                                image: DecorationImage(
+                                  image: FileImage(
+                                    controller.frontImageName!.isNotEmpty
+                                        ? controller.frontImageFile
+                                        : File(card.frontImagePath.toString()),
+                                  ),
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
                             ),
                           ),
-                          ValidationError(errorMessage: 'أدخل وجه البطاقة', visible: controller.frontImageName!.isEmpty),
                           const SizedBox(height: 20),
                           RoundedButton(
                             color: Colors.white,
@@ -153,20 +155,18 @@ class _AddCardState extends State<AddCard> {
                             child: Container(
                               height: 140,
                               alignment: Alignment.center,
-                              decoration: controller.backImageName!.isEmpty
-                                  ? const BoxDecoration()
-                                  : BoxDecoration(
-                                      image: DecorationImage(
-                                        image: FileImage(controller.backImageFile),
-                                        fit: BoxFit.cover,
-                                      ),
-                                    ),
-                              child: controller.backImageName!.isEmpty
-                                  ? Icon(Icons.image, color: AppData.placeholderColor, size: 80)
-                                  : Container(),
+                              decoration: BoxDecoration(
+                                image: DecorationImage(
+                                  image: FileImage(
+                                    controller.backImageName!.isNotEmpty
+                                        ? controller.backImageFile
+                                        : File(card.backImagePath.toString()),
+                                  ),
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
                             ),
                           ),
-                          ValidationError(errorMessage: 'أدخل ظهر البطاقة', visible: controller.backImageName!.isEmpty),
                           const SizedBox(height: 20),
                           RoundedButton(
                             color: Colors.white,
@@ -188,8 +188,8 @@ class _AddCardState extends State<AddCard> {
                     const SizedBox(height: 25),
                     RoundedButton(
                       color: AppData.mainColor,
-                      child: const MyText(text: 'إنشاء', color: Colors.white, fontSize: 18),
-                      onPressed: () => controller.createCard(),
+                      child: const MyText(text: 'حفظ التعديلات', color: Colors.white, fontSize: 18),
+                      onPressed: () => controller.editCard(card),
                     ),
                     const SizedBox(height: 15),
                   ],
